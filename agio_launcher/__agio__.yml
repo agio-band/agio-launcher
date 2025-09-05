@@ -1,0 +1,32 @@
+name: agio_launcher
+version: 0.0.1
+label: agio Launcher
+description: |
+  Main package for launching any applications
+
+urls:
+  source_url: "https://github.com/agio-band/agio-launcher.git"
+  home_page: ""
+  documentation: ""
+  bug_tracker: ""
+
+plugins:
+  - label: Launch Command
+    implementations:
+      - module: plugins/command/launch_cmd.py
+
+  - label: Standalone App
+    implementations:
+      - module: plugins/applications/standalone_app.py
+        app-groups:
+          - standalone
+
+  - label: Extra context
+    implementations:
+      - module: plugins/context_args/launch_context_args.py
+
+settings:
+  local:
+    layout: package_settings/local_layout.yml
+    model: package_settings.local_settings.LauncherSettings
+
