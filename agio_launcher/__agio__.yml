@@ -21,10 +21,6 @@ plugins:
         app-groups:
           - standalone
 
-  - label: Launcher Command
-    implementations:
-      - module: plugins/command/launch_cmd.py
-
 settings:
   local:
     layout: package_settings/local_layout.yml

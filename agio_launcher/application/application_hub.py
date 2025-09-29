@@ -1,47 +1,37 @@
 from agio.core.utils import plugin_hub
 from agio.core.settings import get_local_settings
+from agio.core.utils.singleton import Singleton
 from .application import AApplication
+from ..plugins import base_application
 
 
-class ApplicationHub:
+class ApplicationHub(metaclass=Singleton):
     def __init__(self):
         local_settings = get_local_settings()
         self.apps_config = local_settings.get('agio_launcher.applications')
 
-    def get_app_settings(self, name, version):
+    def get_app(self, name: str, version: str, mode: str = None) -> AApplication:
+        plugin = self.find_plugin(name, mode)
+        if not plugin:
+            raise RuntimeError(f"Plugin '{name}/{mode}' not found")
+        app_config = self.get_app_settings(name, version) or {} # TODO error if empty
+        return AApplication(plugin, version, app_config)
+
+    def get_app_settings(self, name: str, version: str) -> dict:
         for app in self.apps_config:
             if app.name == name and app.version == version:
                 return app.model_dump()
         raise Exception('Application settings for {} v{} not found'.format(name, version))
 
-    def get_app(self, name: str, version: str, mode: str = None) -> AApplication:
-        plugin, modes = self._find_plugins(name)
-        app_config = self.get_app_settings(name, version) or {} # TODO error if empty
-        return AApplication(plugin, modes, version, app_config, mode)
-
-    def get_app_list(self):
-        ...
-
-    def set_app_install_dir(self, app_name: str, version: str):
-        ...
-
-    def add_app_config(self, app_name, app_version: str):
-        ...
-
+    @classmethod
+    def find_plugin(cls, name: str, mode: str = None) -> base_application.ApplicationPlugin:
+        for plg in cls.find_app_plugins(name):
+            if plg.app_mode == mode:
+                return plg
 
     @classmethod
-    def _find_plugins(cls, name: str):
+    def find_app_plugins(cls, name: str):
         hub = plugin_hub.APluginHub.instance()
-        app_plugin = None
         for app_plugin in hub.get_plugins_by_type('application'):
-            if app_plugin.name == name:
-                break
-        if not app_plugin:
-            raise RuntimeError(f"Application plugin '{name}' not found")
-        mode_plugins = []
-        for mode_plugin in hub.get_plugins_by_type('application_mode'):
-            if mode_plugin.app_name == name and mode_plugin.name:
-                mode_plugins.append(mode_plugin)
-        if not mode_plugins:
-            raise RuntimeError(f"Application mods for app '{name}' not found")
-        return app_plugin, mode_plugins
+            if app_plugin.app_name == name:
+                yield app_plugin

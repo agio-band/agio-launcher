@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from functools import cached_property
 from pathlib import Path
 
 from agio.core.utils.launch_utils import LaunchContext
@@ -10,36 +11,18 @@ from agio_launcher.plugins import base_application
 class AApplication:
     def __init__(self,
                  app_plugin: base_application.ApplicationPlugin,
-                 app_mode_plugins: list[base_application.ApplicationModePlugin],
                  version: str,
                  config: dict[str, str],
-                 mode: str = None
                  ) -> None:
         self._app_plugin = app_plugin
-        self._app_mode_plugins = {m.mode_name: m for m in app_mode_plugins}
         self._version = version
         self._config = config
-        self._current_mode = None
-        self.set_mode(mode or 'default')
 
     def __str__(self):
-        return f'{self.label} v{self._version} ({self.mode_name})'
+        return f'{self.label} v{self._version} ({self._app_plugin.app_mode})'
 
     def __repr__(self):
-        return f"<Application('{self.name}', '{self._version}', mode={self.mode_name})"
-
-    @property
-    def mode(self):
-        return self._current_mode
-
-    @property
-    def mode_name(self):
-        return self._current_mode.mode_name
-
-    def set_mode(self, mode: str):
-        if mode not in self._app_mode_plugins:
-            raise ApplicationError(f'Invalid mode {mode!r} for app {self.name}')
-        self._current_mode = self._app_mode_plugins[mode]
+        return f"<Application('{self.name}', '{self._version}', mode={self._app_plugin.app_mode})"
 
     def get_launch_context(self) -> LaunchContext:
         executable = self.get_executable()
@@ -49,8 +32,8 @@ class AApplication:
             raise ApplicationError(f'Executable {self.name}/{executable} is not a file or not exists')
         ctx = LaunchContext(
             executable,
-            self.mode.get_launch_args(self),
-            env=self.mode.get_launch_envs(self),
+            args=self.get_launch_args(),
+            env=self.get_launch_envs(),
         )
         return ctx
 
@@ -66,29 +49,28 @@ class AApplication:
     def version(self):
         return self._version
 
-    def get_mode_plugin(self, mode_name: str):
-        if mode_name not in self._app_mode_plugins:
-            raise ApplicationError(f'Invalid mode {mode_name!r} for app {self.name}')
-        return self._app_mode_plugins[mode_name]
-
     @property
+    def mode(self):
+        return self._app_plugin.app_mode
+
+    @cached_property
     def config(self) -> dict[str, str]:
         return self._config.copy()
 
     def get_executable(self):
-        return self.mode.get_executable(self)
+        return self._app_plugin.get_executable(self)
 
     def get_launch_envs(self):
         envs = self.config.get('env')
-        return envs
+        return self._app_plugin.get_launch_envs(self, envs)
 
     def get_launch_args(self):
         default_args = self.config.get('arguments') or []
-        return default_args
+        return self._app_plugin.get_launch_args(self, default_args)
 
     def get_install_dir(self):
         path = self.config.get('install_dir')
         if not path:
-            raise ApplicationError(f'{self.name} v{self.version} must define an install dir')
+            raise ApplicationError(f'{self.name} v{self.version} config must define an install dir')
         return path
 
