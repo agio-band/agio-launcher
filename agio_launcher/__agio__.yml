@@ -21,9 +21,9 @@ plugins:
         app-groups:
           - standalone
 
-  - label: Extra context
+  - label: Launcher Command
     implementations:
-      - module: plugins/context_args/launch_context_args.py
+      - module: plugins/command/launch_cmd.py
 
 settings:
   local:

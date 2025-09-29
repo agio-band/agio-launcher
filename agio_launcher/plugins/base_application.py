@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from agio_launcher.application import application
 from agio.core.plugins.base_plugin import APlugin
 from agio.core.plugins.mixins import BasePluginClass
+from agio_launcher.application.exceptions import ApplicationError
 
 
 class ApplicationPlugin(BasePluginClass, APlugin):
@@ -36,27 +39,41 @@ class ApplicationModePlugin(BasePluginClass, APlugin):
     mode_name = None
     icon: str = None
     required_attrs = {'app_name', 'mode_name'}
+    bin_path: str = None
 
-    def get_executable(self, install_dir: str) -> str:
-        raise NotImplementedError
+    def __str__(self):
+        return self.mode_name
 
-    def get_args(self, default_args: list = None) -> tuple|list:
+    def __repr__(self):
+        return f"<{self.__class__.__name__} {self.app_name}.{self.mode_name}>"
+
+    def get_bin_basename(self, app: application.AApplication):
+        if not self.bin_path:
+            raise ApplicationError('Bin file name not set')
+        bin_file_name = self.bin_path.format(version=app.version)
+        return bin_file_name
+
+    def get_executable(self, app: application.AApplication) -> str:
+        bin_file_name = self.get_bin_basename(app)
+        return Path(app.get_install_dir(), bin_file_name).as_posix()
+
+    def get_launch_args(self, app: application.AApplication) -> tuple|list|None:
         """
         Modify args for current mode
         """
-        return default_args
+        return
 
-    def get_launch_envs(self, default_envs: dict = None) -> dict:
+    def get_launch_envs(self, app: application.AApplication) -> dict|None:
         """
         Modify envs for current mode
         """
-        return default_envs
+        return
 
-    def get_workdir(self, default_workdir: str) -> str:
+    def get_workdir(self, app: application.AApplication) -> str:
         """
         Modify workdir for current mode
         """
-        return default_workdir
+        return app.get_install_dir()
 
     def on_before_startup(self, app: application.AApplication) -> None:
         pass
