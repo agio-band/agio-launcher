@@ -1,11 +1,10 @@
 ## agio Launcher Package
 
-Используется для подготовки и запуска любых приложений в контексте пайплайна.
+Used to prepare and run any applications in the context of a pipeline.
 
-Пример команды
+Command example
 
 `agio -w [UUID] launch --app-name [APPNAME] --app-version [APPVERSION] --app-mode [APPMODE] -- --arg1 --arg2 ...`
 
-Данная команда создает отдельный venv под каждую версию софта и добавляет его в PYTHONPATH, 
-что позволяет не иметь проблем с совместимостью встроенного интерпретатор с версиями библиотек.  
-
+This command creates a separate venv for each software version and adds it to `PYTHONPATH`,
+which eliminates compatibility issues between the built-in interpreter and library versions.

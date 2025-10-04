@@ -6,9 +6,13 @@ description: |
 
 urls:
   source_url: "https://github.com/agio-band/agio-launcher.git"
-  home_page: ""
+  home_page: "https://github.com/agio-band/agio-launcher.git"
   documentation: ""
   bug_tracker: ""
+
+agio_package_dependencies: [
+  'agio-core==0.0.1'
+]
 
 plugins:
   - label: Launch Command
