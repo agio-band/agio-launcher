@@ -2,7 +2,7 @@ from agio.core.utils import plugin_hub
 from agio.core.settings import get_local_settings
 from agio.core.utils.singleton import Singleton
 from .application import AApplication
-from ..plugins import base_application
+from ..plugins import base_application_plugin
 
 
 class ApplicationHub(metaclass=Singleton):
@@ -24,7 +24,7 @@ class ApplicationHub(metaclass=Singleton):
         raise Exception('Application settings for {} v{} not found'.format(name, version))
 
     @classmethod
-    def find_plugin(cls, name: str, mode: str = None) -> base_application.ApplicationPlugin:
+    def find_plugin(cls, name: str, mode: str = None) -> base_application_plugin.ApplicationPlugin:
         for plg in cls.find_app_plugins(name):
             if plg.app_mode == mode:
                 return plg

@@ -5,12 +5,13 @@ from pathlib import Path
 
 from agio.core.utils.launch_utils import LaunchContext
 from agio_launcher.application.exceptions import ApplicationError
-from agio_launcher.plugins import base_application
+from agio_launcher.plugins import base_application_plugin
 
 
 class AApplication:
+    """Wrapper class for any app plugin"""
     def __init__(self,
-                 app_plugin: base_application.ApplicationPlugin,
+                 app_plugin: base_application_plugin.ApplicationPlugin,
                  version: str,
                  config: dict[str, str],
                  ) -> None:
@@ -61,7 +62,7 @@ class AApplication:
         return self._app_plugin.get_executable(self)
 
     def get_launch_envs(self):
-        envs = self.config.get('env')
+        envs = self._config.get('env') or {}
         return self._app_plugin.get_launch_envs(self, envs)
 
     def get_launch_args(self):

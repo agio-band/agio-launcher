@@ -13,13 +13,12 @@ urls:
 plugins:
   - label: Launch Command
     implementations:
-      - module: plugins/command/launch_cmd.py
+      - module: plugins/commands/launch_cmd.py
 
-  - label: Standalone App
+  - label: Launcher tools command
     implementations:
-      - module: plugins/applications/standalone_app.py
-        app-groups:
-          - standalone
+      - module: plugins/commands/app_tools_cmd.py
+
 
 settings:
   local:
