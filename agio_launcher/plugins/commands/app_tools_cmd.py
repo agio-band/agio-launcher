@@ -15,10 +15,10 @@ from agio_launcher.application.application import AApplication
 class ListAppCommand(ASubCommand):
     command_name = "list"
     arguments = [
-        # click.option('-i', '--install_path', is_flag=True, help='Show installation path'),
+        click.option('-a', '--as-args', is_flag=True, help='Show as arguments'),
     ]
 
-    def execute(self):
+    def execute(self, as_args: bool):
         local_settings = get_local_settings()
         apps_config = sorted(local_settings.get('agio_launcher.applications'), key=lambda a: (a.name, a.version))
         all_app_plugins = list(plugin_hub.APluginHub.instance().get_plugins_by_type('application'))
@@ -26,7 +26,10 @@ class ListAppCommand(ASubCommand):
             conf_list = [x for x in apps_config if x.name == app_plg.app_name]
             for c in conf_list:
                 app = AApplication(app_plg, c.version, c)
-                click.echo(f'{app}, install dir: {c.install_dir or "NOT-SET"}') # TODO make beauty
+                if as_args:
+                    click.echo('--app-name {} --app-version {} --app-mode {}'.format(app.name, app.version, app.mode))
+                else:
+                    click.echo(f'{app}, install dir: {c.install_dir or "NOT-SET"}') # TODO make beauty
 
 
 class AddAppCommand(ASubCommand):

@@ -31,11 +31,11 @@ class ApplicationPlugin(BasePluginClass, APlugin):
         """
         Extend or modify args
         """
-        return
+        return config_args
 
     def get_launch_envs(self, app: application.AApplication, envs: dict = None):
-        """Extend of modify envs"""
-        return envs
+        """Create custom envs"""
+        return {}
 
     def get_user_prefs_dir(self, app: application.AApplication):
         pass

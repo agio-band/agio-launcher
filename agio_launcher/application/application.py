@@ -3,6 +3,8 @@ from __future__ import annotations
 from functools import cached_property
 from pathlib import Path
 
+from pydantic import BaseModel
+
 from agio.core.utils.launch_utils import LaunchContext
 from agio_launcher.application.exceptions import ApplicationError
 from agio_launcher.plugins import base_application_plugin
@@ -17,7 +19,10 @@ class AApplication:
                  ) -> None:
         self._app_plugin = app_plugin
         self._version = version
+        if isinstance(config, BaseModel):
+            config = config.model_dump()
         self._config = config
+        self.ctx = self._create_launch_context()
 
     def __str__(self):
         return f'{self.label} v{self._version} ({self._app_plugin.app_mode})'
@@ -25,7 +30,7 @@ class AApplication:
     def __repr__(self):
         return f"<Application('{self.name}', '{self._version}', mode={self._app_plugin.app_mode})"
 
-    def get_launch_context(self) -> LaunchContext:
+    def _create_launch_context(self) -> LaunchContext:
         executable = self.get_executable()
         if not executable:
             raise ApplicationError(f'{self.name} must define a executable')
@@ -33,8 +38,8 @@ class AApplication:
             raise ApplicationError(f'Executable {self.name}/{executable} is not a file or not exists')
         ctx = LaunchContext(
             executable,
-            args=self.get_launch_args(),
-            env=self.get_launch_envs(),
+            args=self.get_default_launch_args(),
+            env=self.get_default_launch_envs(),
         )
         return ctx
 
@@ -61,11 +66,20 @@ class AApplication:
     def get_executable(self):
         return self._app_plugin.get_executable(self)
 
-    def get_launch_envs(self):
-        envs = self._config.get('env') or {}
-        return self._app_plugin.get_launch_envs(self, envs)
+    def get_default_launch_envs(self):
+        config_envs = self._config.get('env') or {}
+        plugin_envs = self._app_plugin.get_launch_envs(self, config_envs)
+        app_envs = dict(
+            **config_envs,
+            **(plugin_envs or {}),
+            AGIO_APP_NAME=self.name,
+            AGIO_APP_VERSION=self.version,
+            AGIO_APP_MODE=self.mode,
+            AGIO_APP_EXECUTABLE=self.get_executable(),
+        )
+        return app_envs
 
-    def get_launch_args(self):
+    def get_default_launch_args(self):
         default_args = self.config.get('arguments') or []
         return self._app_plugin.get_launch_args(self, default_args)
 
@@ -75,3 +89,30 @@ class AApplication:
             raise ApplicationError(f'{self.name} v{self.version} config must define an install dir')
         return path
 
+    def start(self) -> int|None:
+        """
+        PID equal None is app is started as detached
+        """
+        import click
+        import os
+
+        click.secho("Not Implemented", fg='red')
+        print('⭐️ Start app:', self)
+        print('CMD:', end=' ')
+        click.secho(' '.join(self.ctx.command), fg='green')
+        envs = self.get_default_launch_envs()
+        if envs:
+            click.secho('=== App Environments: ===================', fg='yellow')
+            for k, v in sorted(envs.items()):
+                print(f"{k}={v}")
+
+        agio_envs = {k: v for k, v in os.environ.items() if 'AGIO' in k}
+        if agio_envs:
+            click.secho('=== agio Environment variables: =========', fg='yellow')
+            for k, v in sorted(agio_envs.items()):
+                print(f"{k}={v}")
+            click.secho('=========================================', fg='yellow')
+        else:
+            click.secho('=========================================', fg='yellow')
+
+        return 0

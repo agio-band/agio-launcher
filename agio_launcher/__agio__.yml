@@ -23,6 +23,12 @@ plugins:
     implementations:
       - module: plugins/commands/app_tools_cmd.py
 
+  - label: Launcher Service
+    implementations:
+      - module: plugins/services/launcher_service.py
+
+callbacks:
+  - callbacks/launcher_processing.py
 
 settings:
   local:
