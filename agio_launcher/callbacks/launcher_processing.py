@@ -19,6 +19,6 @@ def create_app_workspace(event, payload):
     ws_man.install_or_update_if_needed()
     site_packages = ws_man.get_site_packages_path()
     app.ctx.append_env_path('PYTHONPATH', site_packages)
-
+    app.ctx.append_envs(**ws_man.get_launch_envs())
 
 
