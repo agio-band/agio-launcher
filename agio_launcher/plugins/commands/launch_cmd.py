@@ -33,7 +33,6 @@ class LauncherCommand(ACommandPlugin):
         # apply default args and envs
         if args:
             app.ctx.add_args(*args)
-        # ready to start
         # starting...
         pid = app.start(**kwargs)
         # app started

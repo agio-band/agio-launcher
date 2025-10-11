@@ -127,6 +127,7 @@ class AApplication:
             for k, v in sorted(envs.items()):
                 print(f"{k}={v}")
         click.secho('=========================================', fg='yellow')
+
         ##########################################################################
 
         emit('agio_launcher.application.before_start', payload={'app': self})
