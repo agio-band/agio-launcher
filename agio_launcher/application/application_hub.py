@@ -2,6 +2,7 @@ from agio.core.utils import plugin_hub
 from agio.core.settings import get_local_settings
 from agio.core.utils.singleton import Singleton
 from .application import AApplication
+from .exceptions import ApplicationNotFoundError
 from ..plugins import base_application_plugin
 
 
@@ -13,7 +14,7 @@ class ApplicationHub(metaclass=Singleton):
     def get_app(self, name: str, version: str, mode: str = None) -> AApplication:
         plugin = self.find_plugin(name, mode)
         if not plugin:
-            raise RuntimeError(f"Plugin '{name}/{mode}' not found")
+            raise ApplicationNotFoundError(f"Plugin '{name}/{mode}' not found")
         app_config = self.get_app_settings(name, version) or {} # TODO error if empty
         return AApplication(plugin, version, app_config)
 

@@ -11,9 +11,10 @@ def create_app_workspace(event, payload):
     ws = AWorkspace.current()
     if not ws:
         raise Exception("No workspace defined")
-    suffix = f"{app.name}-{app.version}"
     # create custom workspace
-    ws_man = AWorkspaceManager.from_workspace(ws)
+    required_version = app.get_python_version()
+    ws_man = AWorkspaceManager.from_workspace(ws, python_version=required_version)
+    suffix = f"{app.name}-{app.version}-py{required_version}"
     ws_man.set_suffix(suffix)
     ws_man.install_or_update_if_needed()
     site_packages = ws_man.get_site_packages_path()

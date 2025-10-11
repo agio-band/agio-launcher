@@ -34,11 +34,12 @@ class LauncherCommand(ACommandPlugin):
         if args:
             app.ctx.add_args(*args)
         # ready to start
-        emit('agio_launcher.start_app.before_start', payload={'app': app})
         # starting...
-        pid = app.start()
+        pid = app.start(**kwargs)
         # app started
+        # !!! this code will not be called if app started with "replace" flag !!!
         emit('agio_launcher.start_app.after_started', payload={'app': app, 'pid': pid})
+        return pid
 
 
 

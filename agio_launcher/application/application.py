@@ -5,14 +5,17 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
+from agio.core.events import emit
 from agio.core.utils.launch_utils import LaunchContext
 from agio.core.utils.process_utils import start_process
-from agio_launcher.application.exceptions import ApplicationError
+from agio_launcher.application.exceptions import ApplicationError, ApplicationNotFoundError
 from agio_launcher.plugins import base_application_plugin
 
 
 class AApplication:
     """Wrapper class for any app plugin"""
+    default_python_version = None
+
     def __init__(self,
                  app_plugin: base_application_plugin.ApplicationPlugin,
                  version: str,
@@ -67,6 +70,20 @@ class AApplication:
     def get_executable(self):
         return self._app_plugin.get_executable(self)
 
+    def get_python_version(self):
+        from agio_launcher.application import app_hub
+
+        # from config
+        version = self.config.get('python_version')
+        if not version:
+            try:
+                py_app = app_hub.get_app(self.name, self.version, mode='python')
+                cmd = [py_app.get_executable(), '-V']
+                version = start_process(cmd, get_output=True, new_console=False).split()[-1]
+                return version
+            except ApplicationNotFoundError:
+                return self.default_python_version
+
     def get_default_launch_envs(self):
         config_envs = self._config.get('env') or {}
         plugin_envs = self._app_plugin.get_launch_envs(self, config_envs)
@@ -90,13 +107,16 @@ class AApplication:
             raise ApplicationError(f'{self.name} v{self.version} config must define an install dir')
         return path
 
-    def start(self) -> int|None:
+    def before_start(self):
+        pass
+
+    def start(self, **kwargs):
         """
         PID equal None is app is started as detached
         """
         import click
-        import os
 
+        ### DEBUG INFO ###########################################################
         click.secho("Not Implemented", fg='red')
         print('⭐️ Start app:', self)
         print('CMD:', end=' ')
@@ -107,5 +127,9 @@ class AApplication:
             for k, v in sorted(envs.items()):
                 print(f"{k}={v}")
         click.secho('=========================================', fg='yellow')
-        start_process(self.ctx.command, env=self.ctx.envs, replace=True)
+        ##########################################################################
 
+        emit('agio_launcher.application.before_start', payload={'app': self})
+        self._app_plugin.on_before_startup(self)
+        start_process(self.ctx.command, env=self.ctx.envs, **kwargs)
+        self._app_plugin.on_after_startup(self)
