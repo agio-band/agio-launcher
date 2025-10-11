@@ -6,6 +6,7 @@ from pathlib import Path
 from pydantic import BaseModel
 
 from agio.core.utils.launch_utils import LaunchContext
+from agio.core.utils.process_utils import start_process
 from agio_launcher.application.exceptions import ApplicationError
 from agio_launcher.plugins import base_application_plugin
 
@@ -105,14 +106,6 @@ class AApplication:
             click.secho('=== App Environments: ===================', fg='yellow')
             for k, v in sorted(envs.items()):
                 print(f"{k}={v}")
+        click.secho('=========================================', fg='yellow')
+        start_process(self.ctx.command, env=self.ctx.envs, replace=True)
 
-        agio_envs = {k: v for k, v in os.environ.items() if 'AGIO' in k}
-        if agio_envs:
-            click.secho('=== agio Environment variables: =========', fg='yellow')
-            for k, v in sorted(agio_envs.items()):
-                print(f"{k}={v}")
-            click.secho('=========================================', fg='yellow')
-        else:
-            click.secho('=========================================', fg='yellow')
-
-        return 0
