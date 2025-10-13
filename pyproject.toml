@@ -3,3 +3,11 @@ name = "agio-launcher"
 version = "0.0.1"
 requires-python = ">=3.10"
 dependencies = []
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"agio_launcher" = [
+    "__agio__.yml",
+]
