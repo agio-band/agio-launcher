@@ -1,12 +1,15 @@
 from agio.core.domains import AWorkspace
-from agio.core.events import subscribe
+from agio.core.events import subscribe, AEvent
 from agio.core.pkg import AWorkspaceManager
 from agio_launcher.application.application import AApplication
 
 
 @subscribe('agio_launcher.start_app.app_created', raise_error=True)
-def create_app_workspace(event, payload):
-    app: AApplication = payload['app']
+def create_app_workspace(event: AEvent):
+    """
+    Create personal venv for application. Interpreter is not used, only libs loaded from this venv.
+    """
+    app: AApplication = event.payload['app']
     # create workspace libs dir
     ws = AWorkspace.current()
     if not ws:
