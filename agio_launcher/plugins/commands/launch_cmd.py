@@ -1,3 +1,5 @@
+from email.policy import default
+
 import click
 
 from agio.core.events import emit
@@ -12,6 +14,8 @@ class LauncherCommand(ACommandPlugin):
         click.option("-n", "--app-name", help="App Name"),
         click.option("-v", "--app-version", help="App Version"),
         click.option("-m", "--app-mode", default='default', help="App Mode"),
+        click.option("-d", "--detached", is_flag=True, default=False, help="Start Detached"),
+        click.option("-c", "--new-console", is_flag=True, default=False, help="Open in new console"),
     ]
     allow_extra_args = True
 
