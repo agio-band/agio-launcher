@@ -16,7 +16,7 @@ def create_app_workspace(event: AEvent):
     # create workspace libs dir
     ws = AWorkspace.current()
     if not ws:
-        raise Exception("No workspace defined")
+        return
     # create custom workspace
     required_version = app.get_python_version()
     ws_man = AWorkspaceManager.from_workspace(ws, python_version=required_version)
