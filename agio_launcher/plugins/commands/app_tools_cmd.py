@@ -2,6 +2,7 @@
 #     list-app
 #     add-app
 #     delete-app
+import os
 from pprint import pprint
 
 from agio.core.plugins.base_command import ACommandPlugin, ASubCommand
@@ -10,6 +11,8 @@ from agio.core.utils  import plugin_hub
 import click
 
 from agio_launcher.application.application import AApplication
+from agio_launcher.application.exceptions import ApplicationError
+from agio_launcher.application.tools import get_app_list
 
 
 class ListAppCommand(ASubCommand):
@@ -19,21 +22,19 @@ class ListAppCommand(ASubCommand):
     ]
 
     def execute(self, as_args: bool):
-        local_settings = get_local_settings()
-        apps_config = sorted(local_settings.get('agio_launcher.applications'), key=lambda a: (a.name, a.version))
-        if not apps_config:
-            click.secho('No applications config found', fg='red')
-        all_app_plugins = list(plugin_hub.APluginHub.instance().get_plugins_by_type('application'))
-        if not all_app_plugins:
+        apps = list(get_app_list())
+
+        if not apps:
             click.secho('No app plugins found', fg='red')
-        for app_plg in all_app_plugins:
-            conf_list = [x for x in apps_config if x.name == app_plg.app_name]
-            for c in conf_list:
-                app = AApplication(app_plg, c.version, c)
-                if as_args:
-                    click.echo('--app-name {} --app-version {} --app-mode {}'.format(app.name, app.version, app.mode))
-                else:
-                    click.echo(f'{app}, install dir: {c.install_dir or "NOT-SET"}') # TODO make beauty
+        for app in apps:
+            if as_args:
+                click.echo('--app-name {} --app-version {} --app-mode {}'.format(app.name, app.version, app.mode))
+            else:
+                try:
+                    install_dir = app.get_install_dir()
+                except ApplicationError:
+                    install_dir = None
+                click.echo(f'{app}, install dir: {install_dir or "NOT-SET"}') # TODO make beauty
 
 
 class AddAppCommand(ASubCommand):

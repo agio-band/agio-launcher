@@ -2,6 +2,9 @@ import logging
 
 from agio.core.plugins.base_service import ServicePlugin, make_action
 from agio.core.utils import launch_utils
+from agio_launcher.application.application import AApplication
+from agio_launcher.application.tools import get_app_list
+from agio_pipe.entities.task import ATask
 
 logger = logging.getLogger(__name__)
 
@@ -9,9 +12,12 @@ logger = logging.getLogger(__name__)
 class LauncherService(ServicePlugin):
     name = 'launcher'
 
-    @make_action(menu_name='task.launcher', app_name='front')
+    @make_action()
     def launch(self, *args, task_id: str, app_name: str, app_version: str, app_mode: str = None, **kwargs):
-        workspace_id = kwargs.get('workspace_id') # or ATask(task_id).project.workspace_id
+        task = ATask(task_id)
+        workspace_id = kwargs.get('workspace_id') or task.project.workspace_id
+        if not workspace_id:
+            raise ValueError(f'Workspace not set for project {task.project.name}')
         envs = {}
         cmd_args = [
             'launch',
@@ -29,5 +35,36 @@ class LauncherService(ServicePlugin):
             args=cmd_args,
             workspace=workspace_id,
             envs=envs,
+            detached=True,
+            new_console=True,
         )
 
+    def collect_actions(self):
+        # TODO: filter for project using settings
+        apps: list[AApplication]  = get_app_list()
+        items = []
+        action_name = f'{self.name}.{self.launch.__name__}'
+        for i, app in enumerate(sorted(apps, key=lambda a: (a.name, a.version))):
+            label = f'{app.label} {app.version}'
+            if app.mode_label:
+                label += f' ({app.mode_label})'
+            action_data = {
+                # filters
+                'action': action_name,
+                'menu_name': 'task.launcher',
+                'app_name': 'front',
+                # action properties
+                'name': 'launch',
+                'label': label,
+                'icon': app.icon,
+                'order': i,
+                'group': 'Applications',
+                'kwargs': {
+                    'app_name': app.name,
+                    'app_version': app.version,
+                    'app_mode': app.mode,
+                },
+                'args': (),
+            }
+            items.append(action_data)
+        return items

@@ -13,6 +13,7 @@ class ApplicationPlugin(BasePluginClass, APlugin):
     app_group: str = None
     app_name: str = None
     app_mode: str = None
+    app_mode_label: str = None
     icon: str = None
     label: str = None
     bin_path: str = None

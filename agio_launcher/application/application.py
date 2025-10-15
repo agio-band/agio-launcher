@@ -63,6 +63,14 @@ class AApplication:
     def mode(self):
         return self._app_plugin.app_mode
 
+    @property
+    def mode_label(self):
+        return self._app_plugin.app_mode_label
+
+    @property
+    def icon(self):
+        return self._app_plugin.icon
+
     @cached_property
     def config(self) -> dict[str, str]:
         return self._config.copy()
