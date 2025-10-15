@@ -125,7 +125,7 @@ class AApplication:
         import click
 
         ### DEBUG INFO ###########################################################
-        click.secho("Not Implemented", fg='red')
+        # click.secho("Not Implemented", fg='red')
         print('⭐️ Start app:', self)
         print('CMD:', end=' ')
         click.secho(' '.join(self.ctx.command), fg='green')
