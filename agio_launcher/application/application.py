@@ -126,7 +126,7 @@ class AApplication:
 
         ### DEBUG INFO ###########################################################
         # click.secho("Not Implemented", fg='red')
-        print('⭐️ Start app:', self)
+        print('Start app:', self)
         print('CMD:', end=' ')
         click.secho(' '.join(self.ctx.command), fg='green')
         envs = self.get_default_launch_envs()
@@ -140,5 +140,8 @@ class AApplication:
 
         emit('agio_launcher.application.before_start', payload={'app': self})
         self._app_plugin.on_before_startup(self)
+        kwargs['new_console'] = kwargs.get('new_console', False)
+        kwargs['detached'] = kwargs.get('detached', False)
+        kwargs['replace'] = not kwargs['detached']
         start_process(self.ctx.command, env=self.ctx.envs, **kwargs)
         self._app_plugin.on_after_startup(self)
