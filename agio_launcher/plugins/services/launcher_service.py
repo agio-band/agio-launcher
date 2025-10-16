@@ -1,7 +1,9 @@
 import logging
+import traceback
 
 from agio.core.plugins.base_service import ServicePlugin, make_action
 from agio.core.utils import launch_utils
+from agio.tools import qt
 from agio_launcher.application.application import AApplication
 from agio_launcher.application.tools import get_app_list
 from agio_pipe.entities.task import ATask
@@ -14,7 +16,12 @@ class LauncherService(ServicePlugin):
 
     @make_action()
     def launch(self, *args, task_id: str, app_name: str, app_version: str, app_mode: str = None, **kwargs):
-        task = ATask(task_id)
+        try:
+            task = ATask(task_id)
+        except Exception as e:
+            traceback.print_exc()
+            qt.show_message_dialog('Task not found', 'Error', 'error')  # todo: replace with emit event
+            return
         workspace_id = kwargs.get('workspace_id') or task.project.workspace_id
         if not workspace_id:
             raise ValueError(f'Workspace not set for project {task.project.name}')
