@@ -16,12 +16,7 @@ class LauncherService(ServicePlugin):
 
     @make_action()
     def launch(self, *args, task_id: str, app_name: str, app_version: str, app_mode: str = None, **kwargs):
-        try:
-            task = ATask(task_id)
-        except Exception as e:
-            traceback.print_exc()
-            qt.show_message_dialog('Task not found', 'Error', 'error')  # todo: replace with emit event
-            return
+        task = ATask(task_id)
         workspace_id = kwargs.get('workspace_id') or task.project.workspace_id
         if not workspace_id:
             raise ValueError(f'Workspace not set for project {task.project.name}')
