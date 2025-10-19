@@ -1,6 +1,6 @@
 import logging
 
-from agio.core.domains import AWorkspace
+from agio.core.entities import AWorkspace
 from agio.core.events import subscribe, AEvent
 from agio.core.pkg import AWorkspaceManager
 from agio_launcher.application.application import AApplication
