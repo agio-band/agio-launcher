@@ -126,12 +126,14 @@ class AApplication:
 
         ### DEBUG INFO ###########################################################
         # click.secho("Not Implemented", fg='red')
-        print('Start app:', self)
+        click.secho('=== Start App: ===================', fg='yellow')
+        print('Name:', end=' ')
+        click.secho(str(self), fg='green')
         print('CMD:', end=' ')
         click.secho(' '.join(self.ctx.command), fg='green')
+
         envs = self.get_default_launch_envs()
         if envs:
-            click.secho('=== App Environments: ===================', fg='yellow')
             for k, v in sorted(envs.items()):
                 print(f"{k}={v}")
         click.secho('=========================================', fg='yellow')
