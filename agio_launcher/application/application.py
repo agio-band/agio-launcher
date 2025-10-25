@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import os
 from functools import cached_property
 from pathlib import Path
 
+import click
 from pydantic import BaseModel
 
 from agio.core.events import emit
@@ -118,27 +120,29 @@ class AApplication:
     def before_start(self):
         pass
 
+    def silent_echo(self):
+        return bool(os.getenv('AGIO_SILENT_APP_STARTUP'))
+
     def start(self, **kwargs):
         """
         PID equal None is app is started as detached
         """
-        import click
+        if not self.silent_echo():
+            ### DEBUG INFO ###########################################################
+            # click.secho("Not Implemented", fg='red')
+            click.secho('=== Start App: ===================', fg='yellow')
+            print('Name:', end=' ')
+            click.secho(str(self), fg='green')
+            print('CMD:', end=' ')
+            click.secho(' '.join(self.ctx.command), fg='green')
 
-        ### DEBUG INFO ###########################################################
-        # click.secho("Not Implemented", fg='red')
-        click.secho('=== Start App: ===================', fg='yellow')
-        print('Name:', end=' ')
-        click.secho(str(self), fg='green')
-        print('CMD:', end=' ')
-        click.secho(' '.join(self.ctx.command), fg='green')
+            envs = self.get_default_launch_envs()
+            if envs:
+                for k, v in sorted(envs.items()):
+                    print(f"{k}={v}")
+            click.secho('=========================================', fg='yellow')
 
-        envs = self.get_default_launch_envs()
-        if envs:
-            for k, v in sorted(envs.items()):
-                print(f"{k}={v}")
-        click.secho('=========================================', fg='yellow')
-
-        ##########################################################################
+            ##########################################################################
 
         emit('agio_launcher.application.before_start', payload={'app': self})
         self._app_plugin.on_before_startup(self)
