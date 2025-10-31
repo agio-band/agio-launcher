@@ -1,9 +1,7 @@
 import logging
-import traceback
 
 from agio.core.plugins.base_service import ServicePlugin, make_action
-from agio.core.utils import launch_utils
-from agio.tools import qt
+from agio.tools import launching
 from agio_launcher.application.application import AApplication
 from agio_launcher.application.tools import get_app_list
 from agio_pipe.entities.task import ATask

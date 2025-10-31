@@ -2,15 +2,10 @@
 #     list-app
 #     add-app
 #     delete-app
-import os
-from pprint import pprint
 
 from agio.core.plugins.base_command import ACommandPlugin, ASubCommand
-from agio.core.settings import get_local_settings
-from agio.core.utils  import plugin_hub
 import click
 
-from agio_launcher.application.application import AApplication
 from agio_launcher.application.exceptions import ApplicationError
 from agio_launcher.application.tools import get_app_list
 

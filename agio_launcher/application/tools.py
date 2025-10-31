@@ -1,7 +1,7 @@
 import logging
 
 from agio.core.settings import get_local_settings
-from agio.core.utils  import plugin_hub
+from agio.core.plugins import plugin_hub
 from agio_launcher.application.application import AApplication
 
 

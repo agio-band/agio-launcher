@@ -2,7 +2,7 @@ import logging
 
 from agio.core.entities import AWorkspace
 from agio.core.events import subscribe, AEvent
-from agio.core.pkg import AWorkspaceManager
+from agio.core.workspaces import AWorkspaceManager
 from agio_launcher.application.application import AApplication
 
 logger = logging.getLogger(__name__)

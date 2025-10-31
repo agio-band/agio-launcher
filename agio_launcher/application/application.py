@@ -8,8 +8,8 @@ import click
 from pydantic import BaseModel
 
 from agio.core.events import emit
-from agio.core.utils.launch_utils import LaunchContext
-from agio.core.utils.process_utils import start_process
+from agio.tools.launching import LaunchContext
+from agio.tools.process_utils import start_process
 from agio_launcher.application.exceptions import ApplicationError, ApplicationNotFoundError
 from agio_launcher.plugins import base_application_plugin
 
