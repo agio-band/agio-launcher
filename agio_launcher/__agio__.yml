@@ -1,5 +1,4 @@
 name: agio_launcher
-version: 0.0.3
 label: agio Launcher
 description: |
   Main package for launching any applications
@@ -10,8 +9,8 @@ urls:
   documentation: ""
   bug_tracker: ""
 
-agio_package_dependencies: [
-  'agio-core>=0.0.2'
+required_packages: [
+  'agio-core>=0.0.4'
 ]
 
 plugins:
