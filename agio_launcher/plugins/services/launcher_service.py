@@ -31,7 +31,7 @@ class LauncherService(ServicePlugin):
             cmd_args.extend(args)
         if task_id:
             envs['AGIO_TASK_ID'] = task_id
-        launch_utils.exec_agio_command(
+        launching.exec_agio_command(
             args=cmd_args,
             workspace=workspace_id,
             envs=envs,
@@ -39,7 +39,7 @@ class LauncherService(ServicePlugin):
             new_console=True,
         )
 
-    def collect_actions(self):
+    def collect_actions(self, hidden=False):
         # TODO: filter for project using settings
         apps: list[AApplication]  = get_app_list()
         items = []
