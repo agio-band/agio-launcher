@@ -9,7 +9,7 @@ from ..plugins import base_application_plugin
 class ApplicationHub(metaclass=Singleton):
     def __init__(self):
         local_settings = get_local_settings()
-        self.apps_config = local_settings.get('agio_launcher.applications')
+        self.apps_config = local_settings.get('agio_launcher.applications', [])
 
     def get_app(self, name: str, version: str, mode: str = None) -> AApplication:
         plugin = self.find_plugin(name, mode)

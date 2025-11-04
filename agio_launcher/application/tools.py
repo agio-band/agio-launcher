@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 def get_app_list():
     local_settings = get_local_settings()
-    apps_config = sorted(local_settings.get('agio_launcher.applications'), key=lambda a: (a.name, a.version))
+    apps_config = sorted(local_settings.get('agio_launcher.applications', []), key=lambda a: (a.name, a.version))
     if not apps_config:
         return
     all_app_plugins = list(plugin_hub.APluginHub.instance().get_plugins_by_type('application'))
